@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prusa Core One Hardware BOM</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .subtitle {
+            margin-top: 10px;
+            opacity: 0.95;
+            font-size: 1.1em;
+        }
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .filter-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .table-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s;
+        }
+        th:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        th:first-child {
+            border-top-left-radius: 10px;
+        }
+        th:last-child {
+            border-top-right-radius: 10px;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.2s;
+        }
+        tbody tr {
+            transition: all 0.3s;
+        }
+        tbody tr:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            transform: scale(1.01);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .category-fasteners { background: #ffeaa7; color: #6c5ce7; }
+        .category-bearings { background: #74b9ff; color: #0984e3; }
+        .category-motors { background: #a29bfe; color: #6c5ce7; }
+        .category-structural { background: #fd79a8; color: #e84393; }
+        .category-electronics { background: #55efc4; color: #00b894; }
+        .category-motion { background: #fdcb6e; color: #f39c12; }
+        .category-printed { background: #fab1a0; color: #e17055; }
+        .category-cables { background: #81ecec; color: #00cec9; }
+        .category-misc { background: #dfe6e9; color: #636e72; }
+        .stats {
+            padding: 20px;
+            background: #f8f9fa;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            border-top: 2px solid #dee2e6;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .sort-arrow {
+            display: inline-block;
+            margin-left: 5px;
+            transition: transform 0.3s;
+        }
+        .sort-arrow.asc {
+            transform: rotate(180deg);
+        }
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            .search-box {
+                width: 100%;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            table {
+                font-size: 12px;
+            }
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Prusa Core One Hardware BOM</h1>
+            <div class="subtitle">Complete Bill of Materials for Kit Assembly</div>
+        </div>
+        
+        <div class="controls">
+            <input type="text" class="search-box" placeholder="🔍 Search for parts..." id="searchInput">
+            <button class="filter-btn active" data-category="all">All Parts</button>
+            <button class="filter-btn" data-category="fasteners">Fasteners</button>
+            <button class="filter-btn" data-category="bearings">Bearings</button>
+            <button class="filter-btn" data-category="motors">Motors</button>
+            <button class="filter-btn" data-category="structural">Structural</button>
+            <button class="filter-btn" data-category="electronics">Electronics</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="bomTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Category <span class="sort-arrow">▼</span></th>
+                        <th onclick="sortTable(1)">Part Name <span class="sort-arrow">▼</span></th>
+                        <th onclick="sortTable(2)">Specification <span class="sort-arrow">▼</span></th>
+                        <th onclick="sortTable(3)">Quantity <span class="sort-arrow">▼</span></th>
+                        <th onclick="sortTable(4)">Package/Location <span class="sort-arrow">▼</span></th>
+                        <th onclick="sortTable(5)">Notes <span class="sort-arrow">▼</span></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Fasteners -->
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M3x4rT</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Rounded head, Torx</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M3x6</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Standard hex socket</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M3x8rT black</td>
+                        <td>8+</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Black oxide finish</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M3x10</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Various uses</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M3x10rT</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Rounded head, Torx</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M3x12</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>SHCS (Socket Head Cap Screw)</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M3x12cT</td>
+                        <td>1+</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Countersunk, Torx</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M3x18</td>
+                        <td>10+</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>For pulleys/idlers</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Screw</td>
+                        <td>M4x6r</td>
+                        <td>2</td>
+                        <td>Others package</td>
+                        <td>For PSU mounting</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Nut</td>
+                        <td>M3n</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Standard hex nut</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Nut</td>
+                        <td>M3nN</td>
+                        <td>10+</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Nylon lock nut</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Nut</td>
+                        <td>M3nS</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Square nut</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Washer</td>
+                        <td>M3</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Standard flat washer</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Spacer</td>
+                        <td>3.2/6x2</td>
+                        <td>2</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>For motor mounts</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Spacer</td>
+                        <td>5x10x0.1</td>
+                        <td>1</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>For extruder motor</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Tubular spacer</td>
+                        <td>13.2x3.8x0.35</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>For Nextruder</td>
+                    </tr>
+                    <tr data-category="fasteners">
+                        <td><span class="category-badge category-fasteners">Fasteners</span></td>
+                        <td>Plastic Rivet</td>
+                        <td>Push-fit</td>
+                        <td>Multiple</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>For panel mounting</td>
+                    </tr>
+                    
+                    <!-- Bearings & Motion -->
+                    <tr data-category="bearings">
+                        <td><span class="category-badge category-bearings">Bearings</span></td>
+                        <td>Linear Bearing</td>
+                        <td>LM8UU</td>
+                        <td>2</td>
+                        <td>Electronics package</td>
+                        <td>8mm shaft, for Z-axis</td>
+                    </tr>
+                    <tr data-category="bearings">
+                        <td><span class="category-badge category-bearings">Bearings</span></td>
+                        <td>Linear Bearing</td>
+                        <td>LM10LUU</td>
+                        <td>2</td>
+                        <td>CORE XY parts + hinges + HB set</td>
+                        <td>10mm shaft, long version</td>
+                    </tr>
+                    <tr data-category="bearings">
+                        <td><span class="category-badge category-bearings">Bearings</span></td>
+                        <td>Ball Bearing</td>
+                        <td>693 2RS</td>
+                        <td>2</td>
+                        <td>Electronics package</td>
+                        <td>3x8x4mm sealed</td>
+                    </tr>
+                    <tr data-category="bearings">
+                        <td><span class="category-badge category-bearings">Bearings</span></td>
+                        <td>Idler Pulley</td>
+                        <td>GT2-20 teeth</td>
+                        <td>10+</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>20 tooth GT2 timing pulley</td>
+                    </tr>
+                    
+                    <!-- Motors -->
+                    <tr data-category="motors">
+                        <td><span class="category-badge category-motors">Motors</span></td>
+                        <td>Stepper Motor</td>
+                        <td>Z-axis left</td>
+                        <td>2</td>
+                        <td>Motor kit box</td>
+                        <td>With integrated lead screw</td>
+                    </tr>
+                    <tr data-category="motors">
+                        <td><span class="category-badge category-motors">Motors</span></td>
+                        <td>Stepper Motor</td>
+                        <td>Z-axis right</td>
+                        <td>1</td>
+                        <td>Motor kit box</td>
+                        <td>With integrated lead screw</td>
+                    </tr>
+                    <tr data-category="motors">
+                        <td><span class="category-badge category-motors">Motors</span></td>
+                        <td>Stepper Motor</td>
+                        <td>X-axis</td>
+                        <td>1</td>
+                        <td>Motor kit box</td>
+                        <td>NEMA 17</td>
+                    </tr>
+                    <tr data-category="motors">
+                        <td><span class="category-badge category-motors">Motors</span></td>
+                        <td>Stepper Motor</td>
+                        <td>Y-axis</td>
+                        <td>1</td>
+                        <td>Motor kit box</td>
+                        <td>NEMA 17</td>
+                    </tr>
+                    <tr data-category="motors">
+                        <td><span class="category-badge category-motors">Motors</span></td>
+                        <td>Stepper Motor</td>
+                        <td>Extruder</td>
+                        <td>1</td>
+                        <td>Motor kit box</td>
+                        <td>For Nextruder</td>
+                    </tr>
+                    
+                    <!-- Structural Components -->
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Smooth Rod</td>
+                        <td>8mm x 330mm</td>
+                        <td>2</td>
+                        <td>Rods box</td>
+                        <td>For Z-axis guide</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Smooth Rod</td>
+                        <td>10mm (length varies)</td>
+                        <td>2</td>
+                        <td>Rods box</td>
+                        <td>For X-axis</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Lead Screw</td>
+                        <td>Trapezoidal</td>
+                        <td>3</td>
+                        <td>With Z motors</td>
+                        <td>T8 pitch</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Linear Rail</td>
+                        <td>MGN12H</td>
+                        <td>1</td>
+                        <td>CoreXY assembly</td>
+                        <td>For Y-axis</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Frame Profile</td>
+                        <td>Steel, laser-cut</td>
+                        <td>Multiple</td>
+                        <td>Metal parts 1/3</td>
+                        <td>Main frame structure</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Bottom Panel</td>
+                        <td>Steel sheet</td>
+                        <td>1</td>
+                        <td>Metal parts 1/3</td>
+                        <td>Base plate</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>CoreXY Plate</td>
+                        <td>Steel</td>
+                        <td>1</td>
+                        <td>Metal parts 1/3</td>
+                        <td>Main CoreXY mounting plate</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Back Panel</td>
+                        <td>Steel sheet</td>
+                        <td>1</td>
+                        <td>Metal parts</td>
+                        <td>Rear enclosure panel</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Door</td>
+                        <td>Acrylic/Polycarbonate</td>
+                        <td>1</td>
+                        <td>Enclosure parts</td>
+                        <td>Front door panel</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Side Panels</td>
+                        <td>Acrylic/Metal</td>
+                        <td>2</td>
+                        <td>Enclosure parts</td>
+                        <td>Left and right panels</td>
+                    </tr>
+                    <tr data-category="structural">
+                        <td><span class="category-badge category-structural">Structural</span></td>
+                        <td>Top Panel</td>
+                        <td>Acrylic</td>
+                        <td>1</td>
+                        <td>Enclosure parts</td>
+                        <td>Removable top cover</td>
+                    </tr>
+                    
+                    <!-- Electronics -->
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Control Board</td>
+                        <td>xBuddy</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>Main controller board</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Extension Board</td>
+                        <td>xBuddy Extension</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>For additional connections</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Power Supply</td>
+                        <td>Delta 240W 24V</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>Main PSU</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Display</td>
+                        <td>xLCD assembly</td>
+                        <td>1</td>
+                        <td>xLCD package</td>
+                        <td>Touch display unit</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Heatbed</td>
+                        <td>Magnetic MK52</td>
+                        <td>1</td>
+                        <td>Heatbed assembly</td>
+                        <td>250x210mm print area</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Thermistor</td>
+                        <td>Heatbed</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>Temperature sensor</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Thermistor</td>
+                        <td>Hotend</td>
+                        <td>1</td>
+                        <td>Nextruder assembly</td>
+                        <td>Temperature sensor</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Heatsink Assembly</td>
+                        <td>Nextruder</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>With cooling fins</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Hotend</td>
+                        <td>Prusa Nextruder</td>
+                        <td>1</td>
+                        <td>Nextruder assembly</td>
+                        <td>Complete hotend unit</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Nozzle</td>
+                        <td>0.4mm brass</td>
+                        <td>1</td>
+                        <td>Nextruder assembly</td>
+                        <td>Standard nozzle</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Fan</td>
+                        <td>40mm axial</td>
+                        <td>Multiple</td>
+                        <td>Electronics package</td>
+                        <td>Cooling fans</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Fan</td>
+                        <td>Blower/Radial</td>
+                        <td>1-2</td>
+                        <td>Electronics package</td>
+                        <td>Part cooling</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>LED Strip</td>
+                        <td>RGB</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>Chamber lighting</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Filament Sensor</td>
+                        <td>Optical/Mechanical</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>Filament detection</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Load Cell Sensor</td>
+                        <td>Bed leveling</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>Auto bed leveling</td>
+                    </tr>
+                    <tr data-category="electronics">
+                        <td><span class="category-badge category-electronics">Electronics</span></td>
+                        <td>Endstop</td>
+                        <td>Mechanical/Optical</td>
+                        <td>3-4</td>
+                        <td>Electronics package</td>
+                        <td>Axis limits</td>
+                    </tr>
+                    
+                    <!-- Motion Components -->
+                    <tr data-category="motion">
+                        <td><span class="category-badge category-motion">Motion</span></td>
+                        <td>GT2 Belt</td>
+                        <td>6mm width</td>
+                        <td>~5-6m</td>
+                        <td>Motion parts</td>
+                        <td>CoreXY belt system</td>
+                    </tr>
+                    <tr data-category="motion">
+                        <td><span class="category-badge category-motion">Motion</span></td>
+                        <td>Belt Tensioner</td>
+                        <td>Adjustable</td>
+                        <td>2</td>
+                        <td>Printed parts</td>
+                        <td>X and Y tensioners</td>
+                    </tr>
+                    <tr data-category="motion">
+                        <td><span class="category-badge category-motion">Motion</span></td>
+                        <td>Trapezoidal Nut</td>
+                        <td>POM/Brass</td>
+                        <td>3</td>
+                        <td>Motion parts</td>
+                        <td>For Z lead screws</td>
+                    </tr>
+                    <tr data-category="motion">
+                        <td><span class="category-badge category-motion">Motion</span></td>
+                        <td>Motor Pulley</td>
+                        <td>GT2-20 teeth</td>
+                        <td>2</td>
+                        <td>Motion parts</td>
+                        <td>For X and Y motors</td>
+                    </tr>
+                    
+                    <!-- Printed Parts -->
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Rod Holder</td>
+                        <td>Left</td>
+                        <td>1</td>
+                        <td>CORE XY parts + hinges + HB set</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Rod Holder</td>
+                        <td>Right</td>
+                        <td>1</td>
+                        <td>CORE XY parts + hinges + HB set</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Rod Holder</td>
+                        <td>Rear (2x)</td>
+                        <td>2</td>
+                        <td>CORE XY parts + hinges + HB set</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>XY-carriage</td>
+                        <td>Assembly</td>
+                        <td>2</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>XY-motor-mount</td>
+                        <td>Left</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>XY-motor-mount</td>
+                        <td>Right</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Linear Holder</td>
+                        <td>Left</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Linear Holder</td>
+                        <td>Right</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Bed Mount</td>
+                        <td>Left</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Bed Mount</td>
+                        <td>Right</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Bed Spacer</td>
+                        <td>Front</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Bed Spacer</td>
+                        <td>Rear</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Idler Lever</td>
+                        <td>Type B</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>For Nextruder</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Main Plate</td>
+                        <td>Nextruder</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>PG-ring</td>
+                        <td>Nextruder</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>PG-assembly-adapter</td>
+                        <td>Nextruder</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Fan Shroud</td>
+                        <td>Part cooling</td>
+                        <td>1</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    <tr data-category="printed">
+                        <td><span class="category-badge category-printed">Printed</span></td>
+                        <td>Cable Management</td>
+                        <td>Various clips</td>
+                        <td>Multiple</td>
+                        <td>Printed parts package</td>
+                        <td>3D printed PETG</td>
+                    </tr>
+                    
+                    <!-- Cables and Wiring -->
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>xBuddy Power Cable</td>
+                        <td>24V</td>
+                        <td>2</td>
+                        <td>Electronics package</td>
+                        <td>PSU to board</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>Power Panic Cable</td>
+                        <td>Signal cable</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>Power loss detection</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>Motor Cable</td>
+                        <td>4-pin</td>
+                        <td>5</td>
+                        <td>Electronics package</td>
+                        <td>Stepper motor connections</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>Thermistor Cable</td>
+                        <td>2-pin</td>
+                        <td>2</td>
+                        <td>Electronics package</td>
+                        <td>Temperature sensors</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>Fan Cable</td>
+                        <td>2/3-pin</td>
+                        <td>Multiple</td>
+                        <td>Electronics package</td>
+                        <td>Fan connections</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>FE Cable</td>
+                        <td>Multi-connector</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>Filament encoder</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>Endstop Cable</td>
+                        <td>3-pin</td>
+                        <td>3-4</td>
+                        <td>Electronics package</td>
+                        <td>Limit switches</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>Display Cable</td>
+                        <td>FFC/Ribbon</td>
+                        <td>1</td>
+                        <td>xLCD package</td>
+                        <td>LCD connection</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>RGB LED Cable</td>
+                        <td>4-pin</td>
+                        <td>1</td>
+                        <td>Electronics package</td>
+                        <td>For LED strip</td>
+                    </tr>
+                    <tr data-category="cables">
+                        <td><span class="category-badge category-cables">Cables</span></td>
+                        <td>AC Power Cable</td>
+                        <td>IEC C14</td>
+                        <td>1</td>
+                        <td>Not included (region-specific)</td>
+                        <td>Main power input</td>
+                    </tr>
+                    
+                    <!-- Miscellaneous -->
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>PTFE Tube</td>
+                        <td>4mm OD, 2mm ID</td>
+                        <td>~500mm</td>
+                        <td>Electronics package</td>
+                        <td>Filament guide</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Zip Tie</td>
+                        <td>Various sizes</td>
+                        <td>20+</td>
+                        <td>Electronics & Fasteners</td>
+                        <td>Cable management</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Rubber Feet</td>
+                        <td>Anti-vibration</td>
+                        <td>4</td>
+                        <td>Electronics package</td>
+                        <td>Base dampeners</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Magnet</td>
+                        <td>Neodymium</td>
+                        <td>Multiple</td>
+                        <td>Various packages</td>
+                        <td>For door/panels</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Spring Steel Sheet</td>
+                        <td>PEI coated</td>
+                        <td>1</td>
+                        <td>Print surface package</td>
+                        <td>Removable print surface</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Lubricant</td>
+                        <td>Grease tube</td>
+                        <td>1</td>
+                        <td>Tools package</td>
+                        <td>For bearings/lead screws</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Pin</td>
+                        <td>2.9x8.5mm</td>
+                        <td>2</td>
+                        <td>Electronics package</td>
+                        <td>For Nextruder assembly</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Expansion Joint</td>
+                        <td>Metal</td>
+                        <td>Multiple</td>
+                        <td>Hardware package</td>
+                        <td>Frame connections</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>USB Drive</td>
+                        <td>8GB+</td>
+                        <td>1</td>
+                        <td>Accessories</td>
+                        <td>For firmware/models</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Tools</td>
+                        <td>Allen keys, screwdrivers</td>
+                        <td>Set</td>
+                        <td>Tools package</td>
+                        <td>Assembly tools included</td>
+                    </tr>
+                    <tr data-category="misc">
+                        <td><span class="category-badge category-misc">Misc</span></td>
+                        <td>Gummy Bears</td>
+                        <td>Haribo</td>
+                        <td>1 bag</td>
+                        <td>Assembly reward</td>
+                        <td>Traditional Prusa treat!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalParts">0</div>
+                <div class="stat-label">Total Part Types</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCategories">9</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="fastenersCount">0</div>
+                <div class="stat-label">Fastener Types</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="printedCount">0</div>
+                <div class="stat-label">Printed Parts</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+            updateStats();
+        });
+
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                const category = this.dataset.category;
+                const rows = document.querySelectorAll('#tableBody tr');
+                
+                rows.forEach(row => {
+                    if (category === 'all') {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = row.dataset.category === category ? '' : 'none';
+                    }
+                });
+                updateStats();
+            });
+        });
+
+        // Sort functionality
+        let sortColumn = -1;
+        let sortDirection = 'asc';
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById('bomTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const headers = table.querySelectorAll('th');
+            
+            // Toggle sort direction
+            if (sortColumn === columnIndex) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortDirection = 'asc';
+                sortColumn = columnIndex;
+            }
+            
+            // Update arrow indicators
+            headers.forEach((header, index) => {
+                const arrow = header.querySelector('.sort-arrow');
+                if (index === columnIndex) {
+                    arrow.className = `sort-arrow ${sortDirection}`;
+                } else {
+                    arrow.className = 'sort-arrow';
+                }
+            });
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+                
+                // Handle numeric values for quantity column
+                if (columnIndex === 3) {
+                    const aNum = parseInt(aValue) || 0;
+                    const bNum = parseInt(bValue) || 0;
+                    return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
+                }
+                
+                // Text comparison
+                if (sortDirection === 'asc') {
+                    return aValue.localeCompare(bValue);
+                } else {
+                    return bValue.localeCompare(aValue);
+                }
+            });
+            
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Update statistics
+        function updateStats() {
+            const visibleRows = document.querySelectorAll('#tableBody tr:not([style*="display: none"])');
+            document.getElementById('totalParts').textContent = visibleRows.length;
+            
+            const fasteners = document.querySelectorAll('#tableBody tr[data-category="fasteners"]:not([style*="display: none"])');
+            document.getElementById('fastenersCount').textContent = fasteners.length;
+            
+            const printed = document.querySelectorAll('#tableBody tr[data-category="printed"]:not([style*="display: none"])');
+            document.getElementById('printedCount').textContent = printed.length;
+        }
+
+        // Initialize stats on load
+        updateStats();
+
+        // Add hover effect with animation
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+
+        // Export to CSV functionality (bonus feature)
+        function exportToCSV() {
+            const rows = document.querySelectorAll('#bomTable tr');
+            let csv = [];
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td, th');
+                const csvRow = Array.from(cols).map(col => {
+                    // Remove HTML tags and get text content
+                    const text = col.textContent.replace(/"/g, '""');
+                    return `"${text}"`;
+                }).join(',');
+                csv.push(csvRow);
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'prusa_core_one_bom.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
