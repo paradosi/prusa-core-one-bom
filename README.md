@@ -153,7 +153,7 @@ python3 scrape_prusa_complete.py
 ### Local Development
 1. Clone repository
    ```bash
-   git clone http://10.10.10.103:3000/jim/prusa-core-one-bom.git
+   git clone https://git.k42.ovh/jim/prusa-core-one-bom.git
    cd prusa-core-one-bom
    ```
 
@@ -201,7 +201,7 @@ BOM compiled from:
 
 ---
 
-**Repository:** http://10.10.10.103:3000/jim/prusa-core-one-bom
+**Repository:** https://git.k42.ovh/jim/prusa-core-one-bom
 **Last Updated:** 2025-09-30
 **Printer Model:** Prusa Core ONE
 **BOM Version:** 1.0
