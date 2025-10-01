@@ -1,0 +1,13 @@
+# Only track prusa-core-one-bom project files
+# Ignore everything
+*
+*/
+
+# Except these prusa project files
+!.gitignore
+!index.html
+!core_one_hardware_bom_master.csv
+!scrape_prusa_complete.py
+!scrape_prusa_manual.sh
+!README.md
+!bom_data.csv
